@@ -77,6 +77,8 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
+!example*.ipynb
 
 # IPython
 profile_default/
@@ -159,6 +161,11 @@ cython_debug/
 #  created by PyCharm in the version control, but you can add them to gitignore if needed.
 .idea/
 
+# Docker
+.docker/
+docker-compose.override.yml
+*.dockerignore.backup
+
 # Audio/Video files (commonly large and shouldn't be in version control)
 # *.mp3
 *.wav
@@ -184,12 +191,18 @@ cython_debug/
 models/
 checkpoints/
 
-# Output files
-output/
+# Input/Output directories (users put their own files here)
+input/*
+!input/.gitkeep
+output/*
+!output/.gitkeep
 results/
 transcriptions/
+
+# Generated files
 *.json
 !requirements.txt
+!package.json
 
 # Temporary files
 temp/

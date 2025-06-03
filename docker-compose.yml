@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Main transcriber service
+  transcriber:
+    build: .
+    container_name: audio-transcriber
+    volumes:
+      # Mount input directory for audio/video files
+      - ./input:/app/input
+      # Mount output directory for transcription results
+      - ./output:/app/output
+      # Mount current directory for development
+      - .:/app
+      # Cache Whisper models to avoid re-downloading
+      - whisper-models:/root/.cache/whisper
+    environment:
+      - PYTHONPATH=/app
+    command: python example_usage.py
+    # Uncomment for interactive mode
+    # stdin_open: true
+    # tty: true
+
+  # Interactive CLI service for development
+  transcriber-cli:
+    build: .
+    container_name: audio-transcriber-cli
+    volumes:
+      - ./input:/app/input
+      - ./output:/app/output
+      - .:/app
+      - whisper-models:/root/.cache/whisper
+    environment:
+      - PYTHONPATH=/app
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    profiles:
+      - cli
+
+  # Jupyter notebook service for interactive development
+  jupyter:
+    build: .
+    container_name: audio-transcriber-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./input:/app/input
+      - ./output:/app/output
+      - .:/app
+      - whisper-models:/root/.cache/whisper
+    environment:
+      - PYTHONPATH=/app
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      bash -c "pip install jupyter jupyterlab &&
+               jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token=''"
+    profiles:
+      - jupyter
+
+  # Web API service (for future development)
+  transcriber-api:
+    build: .
+    container_name: audio-transcriber-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./input:/app/input
+      - ./output:/app/output
+      - .:/app
+      - whisper-models:/root/.cache/whisper
+    environment:
+      - PYTHONPATH=/app
+    command: >
+      bash -c "pip install fastapi uvicorn python-multipart &&
+               python -c 'print(\"API service not implemented yet. Install FastAPI and create api.py for web interface.\")' &&
+               tail -f /dev/null"
+    profiles:
+      - api
+
+volumes:
+  # Persistent volume for Whisper models
+  whisper-models:
+
+networks:
+  default:
+    name: transcriber-network 
